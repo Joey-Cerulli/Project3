@@ -39,6 +39,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/build/esp-idf/esp_system/port/cmake_install.cmake")
+  include("C:/Users/joeyc/Documents/ECE218/Project3/build/esp-idf/esp_system/port/cmake_install.cmake")
 endif()
 

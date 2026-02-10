@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/managed_components/esp-idf-lib__esp_idf_lib_helpers
+# Install script for directory: C:/Users/joeyc/Documents/ECE218/Project3/managed_components/esp-idf-lib__esp_idf_lib_helpers
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

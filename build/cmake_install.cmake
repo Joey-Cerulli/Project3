@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main
+# Install script for directory: C:/Users/joeyc/Documents/ECE218/Project3
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/build/esp-idf/cmake_install.cmake")
+  include("C:/Users/joeyc/Documents/ECE218/Project3/build/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -58,6 +58,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "C:/Users/joeyc/Documents/ECE218/Project3/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

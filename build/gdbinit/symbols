@@ -13,8 +13,8 @@ end
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/build/bootloader/bootloader.elf
+    add-symbol-file C:/Users/joeyc/Documents/ECE218/Project3/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file C:/Users/joeyc/Documents/ECE218/Exercise11 - Copy/LCD_display_starter_code-main/build/LCD_display_starter_code.elf
+file C:/Users/joeyc/Documents/ECE218/Project3/build/LCD_display_starter_code.elf

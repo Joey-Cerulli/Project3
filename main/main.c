@@ -1,6 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
 #include "esp_adc/adc_oneshot.h"
+#include "driver/ledc.h"
 
 
 #define dseat GPIO_NUM_4                            //Driver seat button pin
@@ -18,6 +19,14 @@
 #define SHORT 1                                     //Short delay for intermittent wipers
 #define MEDIUM 3                                    //Medium delay for intermittent wipers
 #define LONG 5                                      //Long delay for intermittent wipers
+#define LEDC_TIMER LEDC_TIMER_0                     //Sets the LEDC timer
+#define LEDC_MODE LEDC_LOW_SPEED_MODE               //Sets the LEDC speed mode
+#define LEDC_OUTPUT_IO (5)                          //Define the output pin for LEDC
+#define LEDC_CHANNEL LEDC_CHANNEL_0                 //Define LEDC channel
+#define LEDC_DUTY_RES LEDC_TIMER_13_BIT             //Set duty resolution to 13 bits
+#define LEDC_FREQUENCY (50)                         //Set the PWM signal frequency in Hertz. 
+#define LEDC_DUTY_MIN (200)                         // Set duty to 3.75%.
+#define LEDC_DUTY_MAX (921)                         // Set duty to 11.25%.
 
 
 bool running = 0;                                   //Variable to track when car is running
@@ -35,6 +44,7 @@ void welcome();
 void run();
 void IRAM_ATTR gpio_isr_handler(void* arg);
 bool ready();
+void WiperHandler();
 
 void app_main(void) {
 

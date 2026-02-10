@@ -11,9 +11,9 @@
 #define gLED GPIO_NUM_13                            //Green LED pin
 #define rLED GPIO_NUM_14                            //Red LED pin
 #define alarm GPIO_NUM_12                           //Alarm pin
-#define headlights GPIO_NUM_40                      //Headlight Pin
+//#define headlights GPIO_NUM_40                      //Headlight Pin
 #define selector ADC_CHANNEL_1                      //Potentiometer Pin
-#define lsensor ADC_CHANNEL_7                       //Light Sensor Pin
+//#define lsensor ADC_CHANNEL_7                       //Light Sensor Pin
 #define ADC_ATTEN ADC_ATTEN_DB_12                   //ADC Attenuation
 #define BITWIDTH ADC_BITWIDTH_12                    //ADC Bitwidth
 
@@ -22,25 +22,19 @@ bool running = 0;                                   //Variable to track when car
 bool reset = 1;                                     //Variable to track when the system has reset
 bool error = 0;                                     //Variable for when the alarm should sound
 bool ran = 1;                                       //Variable to track if engine just started
-bool autoLights = 0;                                //Variable to set the headlights to AUTO
-bool on = 0;                                        //Variable to set the headlights to ON
-int counterOn = 0;                                  //Counter used to turn headlights on after a 1sec delay
-int counterOff = 0;                                 //Counter used to turn headlights off after a 2sec delay
+//bool autoLights = 0;                                //Variable to set the headlights to AUTO
+//bool on = 0;                                        //Variable to set the headlights to ON
+//int counterOn = 0;                                  //Counter used to turn headlights on after a 1sec delay
+//int counterOff = 0;                                 //Counter used to turn headlights off after a 2sec delay
 
 
-//Configured for active high
-bool ready() {                                      //Define a function to check if all conditions are fufilled
-    return gpio_get_level(dseat) 
-    && gpio_get_level(dbelt) 
-    && gpio_get_level(pseat) 
-    && gpio_get_level(pbelt);
-}
-
+//Initialize functions for later
 void config();
 void print_status();
 void welcome();
 void run();
 void IRAM_ATTR gpio_isr_handler(void* arg);
+bool ready();
 
 void app_main(void) {
 
@@ -203,6 +197,14 @@ void config(){
     //Configure lHeadlight pin
     gpio_reset_pin(headlights);
     gpio_set_direction(headlights, GPIO_MODE_OUTPUT);
+}
+
+//Configured for active high
+bool ready() {                                      //Define a function to check if all conditions are fufilled
+    return gpio_get_level(dseat) 
+    && gpio_get_level(dbelt) 
+    && gpio_get_level(pseat) 
+    && gpio_get_level(pbelt);
 }
 
 void print_status() {                               //Define a function for printing reason for car not starting

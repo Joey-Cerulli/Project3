@@ -7,8 +7,8 @@
 #define dseat GPIO_NUM_4                            //Driver seat button pin
 #define dbelt GPIO_NUM_6                            //Driver seatbelt button pin
 #define pseat GPIO_NUM_5                            //Passenger seat button pin
-#define pbelt GPIO_NUM_7                            //Passenger seat button pin
-#define transmission GPIO_NUM_10                    //Passenger seat button pin
+#define pbelt GPIO_NUM_7                            //Passenger seatbelt button pin
+#define transmission GPIO_NUM_10                    //Transmission button pin
 #define gLED GPIO_NUM_13                            //Green LED pin
 #define rLED GPIO_NUM_14                            //Red LED pin
 #define alarm GPIO_NUM_12                           //Alarm pin

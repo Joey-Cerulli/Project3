@@ -267,30 +267,33 @@ void WiperSpeedHandler(int WiperSpeed){
 }
 
 void WiperHandler() {
-    if (WiperMode == 0) {
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-    } else if (WiperMode == 1) {
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-    } else if (WiperMode == 2) {
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-    } else if (WiperMode == 3) {
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
+    while(1) {
+        if (WiperMode == 0) {
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        } else if (WiperMode == 1) {
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        } else if (WiperMode == 2) {
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        } else if (WiperMode == 3) {
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        }
+        vTaskDelay(20/portTICK_PERIOD_MS);
     }
 }
 

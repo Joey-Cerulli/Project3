@@ -1,7 +1,12 @@
-#include "freertos/FreeRTOS.h"
-#include "driver/gpio.h"
-#include "esp_adc/adc_oneshot.h"
-#include "driver/ledc.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <sys/time.h>
+#include <hd44780.h>
+#include <esp_idf_lib_helpers.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <esp_adc/adc_oneshot.h>
+#include <driver/ledc.h>
 
 
 #define dseat GPIO_NUM_4                            //Driver seat button pin
@@ -13,7 +18,7 @@
 #define rLED GPIO_NUM_14                            //Red LED pin
 #define alarm GPIO_NUM_12                           //Alarm pin
 #define ModeSelector ADC_CHANNEL_1                  //Potentiometer pin for setting wiper mode
-#define SpeedSelector ADC_CHANNEL_7                 //Potentiometer pin for setting wiper speed
+#define SpeedSelector ADC_CHANNEL_0                 //Potentiometer pin for setting wiper speed
 #define ADC_ATTEN ADC_ATTEN_DB_12                   //ADC Attenuation
 #define BITWIDTH ADC_BITWIDTH_12                    //ADC Bitwidth
 #define SHORT (1)                                   //Short delay for intermittent wipers
@@ -242,24 +247,24 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
 }
 
 void WiperHandler(int Mode) {
-    if (Mode = 0) {
+    if (Mode == 0) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-    } else if (Mode = 1) {
+    } else if (Mode == 1) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
-    } else if (Mode = 2) {
+    } else if (Mode == 2) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
-    } else if (Mode = 3) {
+    } else if (Mode == 3) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);

@@ -58,6 +58,9 @@ void app_main(void) {
     config();
     ledc_init();
 
+    //Handles Wiper Functions
+    xTaskCreate(WiperHandler, "WiperHandler", 2048, NULL, 5, NULL);
+
     //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
@@ -136,8 +139,6 @@ void app_main(void) {
                 WiperMode = 3;
             }
 
-            //Handles wiper behaviours
-            WiperHandler(WiperMode);
             vTaskDelay(20/portTICK_PERIOD_MS);
         }
         if (error == 1) {                               //Reset the system and sound the alarm
@@ -265,25 +266,25 @@ void WiperSpeedHandler(int WiperSpeed){
     }
 }
 
-void WiperHandler(int Mode) {
-    if (Mode == 0) {
+void WiperHandler() {
+    if (WiperMode == 0) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-    } else if (Mode == 1) {
+    } else if (WiperMode == 1) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
-    } else if (Mode == 2) {
+    } else if (WiperMode == 2) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);
-    } else if (Mode == 3) {
+    } else if (WiperMode == 3) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(LEDC_DELAY);

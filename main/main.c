@@ -50,6 +50,7 @@ void ledc_init();
 void app_main(void) {
 
     config();
+    ledc_init();
 
     //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
@@ -241,13 +242,17 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
 
 void WiperHandler(int Mode) {
     if (Mode = 0) {
-        
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     } else if (Mode = 1) {
-
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     } else if (Mode = 2) {
-
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     } else if (Mode = 3) {
-
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     }
 }
 
@@ -273,5 +278,5 @@ void ledc_init()
         .duty           = 0,                 //Set duty to 0%
         .hpoint         = 0
     };
-ledc_channel_config(&ledc_channel);
+    ledc_channel_config(&ledc_channel);
 }

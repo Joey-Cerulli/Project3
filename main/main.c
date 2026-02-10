@@ -36,58 +36,11 @@ bool ready() {                                      //Define a function to check
     && gpio_get_level(pbelt);
 }
 
-
-void print_status() {                               //Define a function for printing reason for car not starting
-    if (gpio_get_level(dseat) == 0){                //Check if driver is seated
-        printf("Driver Not Seated \n");             //Print if driver not seated
-    }
-
-    if (gpio_get_level(dbelt) == 0){                //Check if driver is buckled
-        printf("Driver Not Buckled \n");            //Print if driver not buckled
-    }
-
-    if (gpio_get_level(pseat) == 0){                //Check if passenger is seated
-        printf("Passenger Not Seated \n");          //Print if passenger not seated
-    }
-
-    if (gpio_get_level(pbelt) == 0){                //Check if passenger is buckled
-        printf("Passenger Not Buckled \n");         //Print if passenger not buckled
-    }
-}
-
-//Function for printing welcome message when driver sits
-void welcome() {
-    if (gpio_get_level(dseat)==1) {
-        printf("Welcome to enhanced alarm system model 218-W25. \n");
-        reset = 0;
-    }
-
-}
-
-//Function for "starting the car"
-void run() {
-    if (ran == 1) {
-        gpio_set_level(gLED, 0);
-        gpio_set_level(rLED, 1);
-        printf("Engine Started\n");
-        ran = 0;
-    }
-}
-
-//Interupt function for when transmission is pressed
-void IRAM_ATTR gpio_isr_handler(void* arg) {
-    if (ready() == 1 && running == 0) {             //Start engine if all conditions met
-        running = 1;    
-    } else if (running == 1) {                      //Stop engine if it is running
-        reset = 1;
-        ran = 1;
-        running = 0;
-    } else {                                        //Sound the alarm and print error messages if conditions not met
-        error = 1;
-    }
-}
-
-void config(void);
+void config();
+void print_status();
+void welcome();
+void run();
+void IRAM_ATTR gpio_isr_handler(void* arg);
 
 void app_main(void) {
 
@@ -205,7 +158,7 @@ void app_main(void) {
 }
 
 //Function for configuring all GPIO pins
-void config(void){
+void config(){
 //Configure dseat pin
     gpio_reset_pin(dseat);
     gpio_set_direction(dseat, GPIO_MODE_INPUT);
@@ -250,4 +203,54 @@ void config(void){
     //Configure lHeadlight pin
     gpio_reset_pin(headlights);
     gpio_set_direction(headlights, GPIO_MODE_OUTPUT);
+}
+
+void print_status() {                               //Define a function for printing reason for car not starting
+    if (gpio_get_level(dseat) == 0){                //Check if driver is seated
+        printf("Driver Not Seated \n");             //Print if driver not seated
+    }
+
+    if (gpio_get_level(dbelt) == 0){                //Check if driver is buckled
+        printf("Driver Not Buckled \n");            //Print if driver not buckled
+    }
+
+    if (gpio_get_level(pseat) == 0){                //Check if passenger is seated
+        printf("Passenger Not Seated \n");          //Print if passenger not seated
+    }
+
+    if (gpio_get_level(pbelt) == 0){                //Check if passenger is buckled
+        printf("Passenger Not Buckled \n");         //Print if passenger not buckled
+    }
+}
+
+//Function for printing welcome message when driver sits
+void welcome() {
+    if (gpio_get_level(dseat)==1) {
+        printf("Welcome to enhanced alarm system model 218-W25. \n");
+        reset = 0;
+    }
+
+}
+
+//Function for "starting the car"
+void run() {
+    if (ran == 1) {
+        gpio_set_level(gLED, 0);
+        gpio_set_level(rLED, 1);
+        printf("Engine Started\n");
+        ran = 0;
+    }
+}
+
+//Interupt function for when transmission is pressed
+void IRAM_ATTR gpio_isr_handler(void* arg) {
+    if (ready() == 1 && running == 0) {             //Start engine if all conditions met
+        running = 1;    
+    } else if (running == 1) {                      //Stop engine if it is running
+        reset = 1;
+        ran = 1;
+        running = 0;
+    } else {                                        //Sound the alarm and print error messages if conditions not met
+        error = 1;
+    }
 }

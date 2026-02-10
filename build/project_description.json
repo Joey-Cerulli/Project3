@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "LCD_display_starter_code",
-    "project_version":    "ccb5207-dirty",
+    "project_version":    "8e6fe01-dirty",
     "project_path":       "C:/Users/joeyc/Documents/ECE218/Project3",
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.5.2",
     "build_dir":          "C:/Users/joeyc/Documents/ECE218/Project3/build",

@@ -82,61 +82,36 @@ void app_main(void) {
             run();                                      //Run function for starting the car
 
             int mode_selector_adc_bits;                      //Variable for potentiometer input adc bits
-            int mode_selector_adc_mV;                        //Variable for potentiometer adc bits in mV
+            int mode_selector;                        //Variable for potentiometer adc bits in mV
             int speed_selector_adc_bits;                       //Variable for light sensor input adc bits
-            int speed_selector_adc_mV;                         //Variable for light sensor adc bits in mV
+            int speed_selector;                         //Variable for light sensor adc bits in mV
 
             adc_oneshot_read                            //Get potentiometer input bits and make them mV
             (adc1_handle, ModeSelector, &mode_selector_adc_bits);
         
             adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector_adc_mV);
+            (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector);
 
             adc_oneshot_read                            //Get light sensor input bits and make them mV
             (adc1_handle, SpeedSelector, &speed_selector_adc_bits);
         
             adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, speed_selector_adc_bits, &speed_selector_adc_mV);
+            (adc1_cali_chan_handle, speed_selector_adc_bits, &speed_selector);
 
 
-            //Sets headlights to the proper mode based on the potentiometer readings
-            if (selector_adc_mV < 1000) {
-                autoLights = 1;
-                on = 0;
-            } else if (selector_adc_mV < 2200 && selector_adc_mV >= 1000) {
-                autoLights = 0;
-                on = 1;
+            //Sets wipers to the proper mode based on the potentiometer readings
+            if (mode_selector < 550) {
+                WiperMode = 0;
+            } else if (mode_selector < 1100 && mode_selector >= 550) {
+                WiperMode = 1;
+            } else if (mode_selector <1650 && mode_selector >= 1100){
+                WiperMode = 2;
             } else {
-                on = 0;
-                autoLights = 0;
+                WiperMode = 3;
             }
 
-            //Handles AUTO headlights behaviour
-            if (autoLights == 1) {
-                if (lsensor_adc_mV >= 1500) {           //Turns headlights on after 1 second if dim outside
-                    counterOff = 0;
-                    if (counterOn >= 50) {
-                        gpio_set_level(headlights, 1);
-                        counterOn = 0;
-                    }
-                    counterOn++;
-                } else {                                //Turns headlights off after 2 seconds if bright outside
-                    counterOn = 0;
-                    if (counterOff >= 100) {
-                        gpio_set_level(headlights, 0);
-                        counterOff = 0;
-                    }
-                    counterOff++;
-                }
-            } else if (on == 1) {                       //Turns headlights ON
-                gpio_set_level(headlights, 1);
-                counterOn = 0;
-                counterOff = 0;
-            } else {                                    //Turns headlights OFF
-                gpio_set_level(headlights, 0);
-                counterOn = 0;
-                counterOff = 0;
-            }
+            //Handles wiper behaviours
+            WiperHandler(WiperMode);
             vTaskDelay(20/portTICK_PERIOD_MS);
         }
         if (error == 1) {                               //Reset the system and sound the alarm
@@ -193,10 +168,6 @@ void config(){
     //Configure alarm pin
     gpio_reset_pin(alarm);
     gpio_set_direction(alarm, GPIO_MODE_OUTPUT);
-
-    //Configure lHeadlight pin
-    gpio_reset_pin(headlights);
-    gpio_set_direction(headlights, GPIO_MODE_OUTPUT);
 }
 
 //Configured for active high
@@ -254,5 +225,17 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
         running = 0;
     } else {                                        //Sound the alarm and print error messages if conditions not met
         error = 1;
+    }
+}
+
+void WiperHandler(int Mode) {
+    if (Mode = 0) {
+        
+    } else if (Mode = 1) {
+
+    } else if (Mode = 2) {
+
+    } else if (Mode = 3) {
+
     }
 }

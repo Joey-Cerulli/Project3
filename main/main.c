@@ -246,6 +246,16 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
     }
 }
 
+void WiperSpeedHandler(int WiperSpeed){
+    if (WiperSpeed == 0) {
+
+    } else if (WiperSpeed == 0) {
+
+    } else {
+        
+    }
+}
+
 void WiperHandler(int Mode) {
     if (Mode == 0) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);

@@ -26,7 +26,7 @@
 #define LONG (5)                                    //Long delay for intermittent wipers
 #define LEDC_TIMER LEDC_TIMER_0                     //Sets the LEDC timer
 #define LEDC_MODE LEDC_LOW_SPEED_MODE               //Sets the LEDC speed mode
-#define LEDC_OUTPUT_IO (5)                          //Define the output pin for LEDC
+#define LEDC_OUTPUT_IO (16)                         //Define the output pin for LEDC
 #define LEDC_CHANNEL LEDC_CHANNEL_0                 //Define LEDC channel
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT             //Set duty resolution to 13 bits
 #define LEDC_FREQUENCY (50)                         //Set the PWM signal frequency in Hertz. 
@@ -252,7 +252,7 @@ void WiperSpeedHandler(int WiperSpeed){
     } else if (WiperSpeed == 0) {
 
     } else {
-        
+
     }
 }
 

@@ -87,54 +87,13 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
     }
 }
 
+void config(void);
 
 void app_main(void) {
 
-    //Configure dseat pin
-    gpio_reset_pin(dseat);
-    gpio_set_direction(dseat, GPIO_MODE_INPUT);
-    gpio_pulldown_en(dseat);
+    config();
 
-    //Configure dbelt pin
-    gpio_reset_pin(dbelt);
-    gpio_set_direction(dbelt, GPIO_MODE_INPUT);
-    gpio_pulldown_en(dbelt);
-
-    //Configure pseat pin
-    gpio_reset_pin(pseat);
-    gpio_set_direction(pseat, GPIO_MODE_INPUT);
-    gpio_pulldown_en(pseat);
-
-    //Configure pbelt pin
-    gpio_reset_pin(pbelt);
-    gpio_set_direction(pbelt, GPIO_MODE_INPUT);
-    gpio_pulldown_en(pbelt);
-
-    //Configure transmission pin
-    gpio_reset_pin(transmission);
-    gpio_set_direction(transmission, GPIO_MODE_INPUT);
-    gpio_pulldown_en(transmission);
-    gpio_set_intr_type(transmission, GPIO_INTR_POSEDGE);
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(transmission, gpio_isr_handler, NULL);
-    gpio_intr_enable(transmission);
-
-    //Configure gLED pin
-    gpio_reset_pin(gLED);
-    gpio_set_direction(gLED, GPIO_MODE_OUTPUT);
-
-    //Configure rLED pin
-    gpio_reset_pin(rLED);
-    gpio_set_direction(rLED, GPIO_MODE_OUTPUT);
-
-    //Configure alarm pin
-    gpio_reset_pin(alarm);
-    gpio_set_direction(alarm, GPIO_MODE_OUTPUT);
-
-    //Configure lHeadlight pin
-    gpio_reset_pin(headlights);
-    gpio_set_direction(headlights, GPIO_MODE_OUTPUT);
-
+    //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
     };                                                  // Unit configuration
@@ -243,4 +202,52 @@ void app_main(void) {
         }
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
+}
+
+//Function for configuring all GPIO pins
+void config(void){
+//Configure dseat pin
+    gpio_reset_pin(dseat);
+    gpio_set_direction(dseat, GPIO_MODE_INPUT);
+    gpio_pulldown_en(dseat);
+
+    //Configure dbelt pin
+    gpio_reset_pin(dbelt);
+    gpio_set_direction(dbelt, GPIO_MODE_INPUT);
+    gpio_pulldown_en(dbelt);
+
+    //Configure pseat pin
+    gpio_reset_pin(pseat);
+    gpio_set_direction(pseat, GPIO_MODE_INPUT);
+    gpio_pulldown_en(pseat);
+
+    //Configure pbelt pin
+    gpio_reset_pin(pbelt);
+    gpio_set_direction(pbelt, GPIO_MODE_INPUT);
+    gpio_pulldown_en(pbelt);
+
+    //Configure transmission pin
+    gpio_reset_pin(transmission);
+    gpio_set_direction(transmission, GPIO_MODE_INPUT);
+    gpio_pulldown_en(transmission);
+    gpio_set_intr_type(transmission, GPIO_INTR_POSEDGE);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(transmission, gpio_isr_handler, NULL);
+    gpio_intr_enable(transmission);
+
+    //Configure gLED pin
+    gpio_reset_pin(gLED);
+    gpio_set_direction(gLED, GPIO_MODE_OUTPUT);
+
+    //Configure rLED pin
+    gpio_reset_pin(rLED);
+    gpio_set_direction(rLED, GPIO_MODE_OUTPUT);
+
+    //Configure alarm pin
+    gpio_reset_pin(alarm);
+    gpio_set_direction(alarm, GPIO_MODE_OUTPUT);
+
+    //Configure lHeadlight pin
+    gpio_reset_pin(headlights);
+    gpio_set_direction(headlights, GPIO_MODE_OUTPUT);
 }

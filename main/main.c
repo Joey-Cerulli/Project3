@@ -11,21 +11,21 @@
 #define gLED GPIO_NUM_13                            //Green LED pin
 #define rLED GPIO_NUM_14                            //Red LED pin
 #define alarm GPIO_NUM_12                           //Alarm pin
-//#define headlights GPIO_NUM_40                      //Headlight Pin
-#define selector ADC_CHANNEL_1                      //Potentiometer Pin
-//#define lsensor ADC_CHANNEL_7                       //Light Sensor Pin
+#define ModeSelector ADC_CHANNEL_1                  //Potentiometer pin for setting wiper mode
+#define SpeedSelector ADC_CHANNEL_7                 //Potentiometer pin for setting wiper speed
 #define ADC_ATTEN ADC_ATTEN_DB_12                   //ADC Attenuation
 #define BITWIDTH ADC_BITWIDTH_12                    //ADC Bitwidth
+#define SHORT 1                                     //Short delay for intermittent wipers
+#define MEDIUM 3                                    //Medium delay for intermittent wipers
+#define LONG 5                                      //Long delay for intermittent wipers
 
 
 bool running = 0;                                   //Variable to track when car is running
 bool reset = 1;                                     //Variable to track when the system has reset
 bool error = 0;                                     //Variable for when the alarm should sound
 bool ran = 1;                                       //Variable to track if engine just started
-//bool autoLights = 0;                                //Variable to set the headlights to AUTO
-//bool on = 0;                                        //Variable to set the headlights to ON
-//int counterOn = 0;                                  //Counter used to turn headlights on after a 1sec delay
-//int counterOff = 0;                                 //Counter used to turn headlights off after a 2sec delay
+int WiperMode = 0;                                  //Variable for setting the wiper mode
+int WiperSpeed = 0;                                 //Variable for setting the wipers' speed
 
 
 //Initialize functions for later
@@ -52,14 +52,14 @@ void app_main(void) {
         .bitwidth = BITWIDTH
     };                                                  // Channel config
     adc_oneshot_config_channel                          // Configure the potentiometer channel
-    (adc1_handle, selector, &config);
+    (adc1_handle, ModeSelector, &config);
 
     adc_oneshot_config_channel                          // Configure the light sensor channel
-    (adc1_handle, lsensor, &config);
+    (adc1_handle, SpeedSelector, &config);
    
     adc_cali_curve_fitting_config_t cali_config = {     // Configure the potentiometer
         .unit_id = ADC_UNIT_1,
-        .chan = selector,
+        .chan = ModeSelector,
         .atten = ADC_ATTEN,
         .bitwidth = BITWIDTH
     };
@@ -81,22 +81,22 @@ void app_main(void) {
         while(running == 1) {
             run();                                      //Run function for starting the car
 
-            int selector_adc_bits;                      //Variable for potentiometer input adc bits
-            int selector_adc_mV;                        //Variable for potentiometer adc bits in mV
-            int lsensor_adc_bits;                       //Variable for light sensor input adc bits
-            int lsensor_adc_mV;                         //Variable for light sensor adc bits in mV
+            int mode_selector_adc_bits;                      //Variable for potentiometer input adc bits
+            int mode_selector_adc_mV;                        //Variable for potentiometer adc bits in mV
+            int speed_selector_adc_bits;                       //Variable for light sensor input adc bits
+            int speed_selector_adc_mV;                         //Variable for light sensor adc bits in mV
 
             adc_oneshot_read                            //Get potentiometer input bits and make them mV
-            (adc1_handle, selector, &selector_adc_bits);
+            (adc1_handle, ModeSelector, &mode_selector_adc_bits);
         
             adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, selector_adc_bits, &selector_adc_mV);
+            (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector_adc_mV);
 
             adc_oneshot_read                            //Get light sensor input bits and make them mV
-            (adc1_handle, lsensor, &lsensor_adc_bits);
+            (adc1_handle, SpeedSelector, &speed_selector_adc_bits);
         
             adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, lsensor_adc_bits, &lsensor_adc_mV);
+            (adc1_cali_chan_handle, speed_selector_adc_bits, &speed_selector_adc_mV);
 
 
             //Sets headlights to the proper mode based on the potentiometer readings

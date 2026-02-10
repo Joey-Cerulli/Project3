@@ -54,7 +54,7 @@ void WiperHandler();
 void ledc_init();
 
 void app_main(void) {
-
+    printf("RUNNING\n");
     config();
     ledc_init();
 
@@ -87,6 +87,14 @@ void app_main(void) {
     (&cali_config, &adc1_cali_chan_handle);
 
     while(1) {                                          //Start the actual process
+        if (gpio_get_level(pseat) == 1) {
+        }
+        if (gpio_get_level(dseat) == 1) {
+        }
+        if (gpio_get_level(pbelt) == 1) {
+        }
+        if (gpio_get_level(dbelt) == 1) {
+        }
         if (reset == 1) {                               //Reset the system
             gpio_set_level(rLED, 0);
             welcome();
@@ -147,6 +155,7 @@ void app_main(void) {
 //Function for configuring all GPIO pins
 void config(){
 //Configure dseat pin
+    printf("CONFIGGING\n");
     gpio_reset_pin(dseat);
     gpio_set_direction(dseat, GPIO_MODE_INPUT);
     gpio_pulldown_en(dseat);

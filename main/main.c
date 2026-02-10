@@ -25,8 +25,9 @@
 #define LEDC_CHANNEL LEDC_CHANNEL_0                 //Define LEDC channel
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT             //Set duty resolution to 13 bits
 #define LEDC_FREQUENCY (50)                         //Set the PWM signal frequency in Hertz. 
-#define LEDC_DUTY_MIN (200)                         // Set duty to 3.75%.
-#define LEDC_DUTY_MAX (921)                         // Set duty to 11.25%.
+#define LEDC_DUTY_MIN (200)                         //Set duty to 3.75%.
+#define LEDC_DUTY_MAX (921)                         //Set duty to 11.25%.
+#define LEDC_DELAY (770/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
 
 
 bool running = 0;                                   //Variable to track when car is running
@@ -245,14 +246,26 @@ void WiperHandler(int Mode) {
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     } else if (Mode = 1) {
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
     } else if (Mode = 2) {
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
     } else if (Mode = 3) {
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_DELAY);
     }
 }
 

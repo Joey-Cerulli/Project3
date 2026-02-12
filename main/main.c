@@ -30,8 +30,11 @@
 #define LEDC_CHANNEL LEDC_CHANNEL_0                 //Define LEDC channel
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT             //Set duty resolution to 13 bits
 #define LEDC_FREQUENCY (50)                         //Set the PWM signal frequency in Hertz. 
-#define LEDC_DUTY_MIN (200)                         //Set duty to 3.75%.
-#define LEDC_DUTY_MAX (921)                         //Set duty to 11.25%.
+#define LEDC_CW_LOW (550)                           //Set duty to make servo spin clockwise slow
+#define LEDC_CCW_LOW (700)                          //Set duty to make servo spin counter-clockwise slow
+#define LEDC_CW_HIGH (10)                           //Set duty to make servo spin clockwise fast
+#define LEDC_CCW_HIGH (1200)                        //Set duty to make servo spin counter-clockwise fast
+#define LEDC_STOP (600)
 #define LEDC_DELAY (770/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
 
 
@@ -48,7 +51,7 @@ void config();
 void print_status();
 void welcome();
 void run();
-void IRAM_ATTR gpio_isr_handler(void* arg);
+void gpio_isr_handler();
 bool ready();
 void WiperHandler();
 void ledc_init();
@@ -90,14 +93,6 @@ void app_main(void) {
     (&cali_config, &adc1_cali_chan_handle);
 
     while(1) {                                          //Start the actual process
-        if (gpio_get_level(pseat) == 1) {
-        }
-        if (gpio_get_level(dseat) == 1) {
-        }
-        if (gpio_get_level(pbelt) == 1) {
-        }
-        if (gpio_get_level(dbelt) == 1) {
-        }
         if (reset == 1) {                               //Reset the system
             gpio_set_level(rLED, 0);
             welcome();
@@ -269,27 +264,27 @@ void WiperSpeedHandler(int WiperSpeed){
 void WiperHandler() {
     while(1) {
         if (WiperMode == 0) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         } else if (WiperMode == 1) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_HIGH);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_HIGH);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         } else if (WiperMode == 2) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_LOW);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_LOW);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         } else if (WiperMode == 3) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_HIGH);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_HIGH);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         }

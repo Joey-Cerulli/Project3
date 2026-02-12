@@ -59,7 +59,7 @@ bool ready();
 void WiperHandler();
 void ledc_init();
 
-void lcd_test(void *pvParameters){
+void lcd(void *pvParameters){
     hd44780_t lcd =
     {
         .write_cb = NULL,
@@ -95,6 +95,7 @@ void lcd_test(void *pvParameters){
         //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
         hd44780_puts(&lcd, "Speed: ");
     }
+    vTaskDelay(20/portTICK_PERIOD_MS);
 }
 
 
@@ -106,7 +107,7 @@ void app_main(void) {
     //Handles Wiper Functions
     xTaskCreate(WiperHandler, "WiperHandler", 2048, NULL, 5, NULL);
 
-    xTaskCreate(lcd_test, "lcd_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+    xTaskCreate(lcd, "LCDmessages", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
     //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
@@ -189,6 +190,7 @@ void app_main(void) {
         }
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
+    vTaskDelay(20/portTICK_PERIOD_MS);
 }
 
 //Function for configuring all GPIO pins

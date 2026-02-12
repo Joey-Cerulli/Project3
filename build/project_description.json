@@ -1,13 +1,8 @@
 {
     "version":            "1.2",
     "project_name":       "LCD_display_starter_code",
-<<<<<<< HEAD
-    "project_version":    "7abe45a-dirty",
-    "project_path":       "C:/Users/joeyc/Documents/ECE218/Project3",
-=======
-    "project_version":    "eca6523-dirty",
+    "project_version":    "d122749-dirty",
     "project_path":       "C:/Users/abell/Project3",
->>>>>>> ALexbranch
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.5.2",
     "build_dir":          "C:/Users/abell/Project3/build",
     "config_file":        "C:/Users/abell/Project3/sdkconfig",

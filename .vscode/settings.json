@@ -13,6 +13,6 @@
     "--query-driver=**",
     "--compile-commands-dir=c:\\ESP32\\ESP32_Exercises\\LCD_display\\default\\build"
   ],
-  "idf.portWin": "COM4",
+  "idf.portWin": "COM15",
   "idf.currentSetup": "C:\\Espressif\\frameworks\\esp-idf-v5.5.2"
 }

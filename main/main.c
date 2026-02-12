@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <esp_adc/adc_oneshot.h>
 #include <driver/ledc.h>
-
+#include <string.h>
 
 #define dseat GPIO_NUM_4                            //Driver seat button pin
 #define dbelt GPIO_NUM_6                            //Driver seatbelt button pin
@@ -44,7 +44,10 @@ bool error = 0;                                     //Variable for when the alar
 bool ran = 1;                                       //Variable to track if engine just started
 int WiperMode = 0;                                  //Variable for setting the wiper mode
 int WiperSpeed = 0;                                 //Variable for setting the wipers' speed
-
+char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};
+char arr_speeds[3][5] = {"SHORT", "MED", "LONG"};
+char mode[16];
+char speed[16];
 
 //Initialize functions for later
 void config();
@@ -56,6 +59,45 @@ bool ready();
 void WiperHandler();
 void ledc_init();
 
+void lcd_test(void *pvParameters){
+    hd44780_t lcd =
+    {
+        .write_cb = NULL,
+        .font = HD44780_FONT_5X8,
+        .lines = 2,
+        .pins = {
+            .rs = GPIO_NUM_41,
+            .e  = GPIO_NUM_37,
+            .d4 = GPIO_NUM_36,
+            .d5 = GPIO_NUM_35,
+            .d6 = GPIO_NUM_48,
+            .d7 = GPIO_NUM_47,
+            .bl = HD44780_NOT_USED
+        }
+    };
+
+    ESP_ERROR_CHECK(hd44780_init(&lcd));
+
+    hd44780_gotoxy(&lcd, 0, 0);
+    hd44780_puts(&lcd, "Mode: ");
+    //snprintf(mode, sizeof(mode), "%s", arr_modes[WiperMode]);
+    hd44780_puts(&lcd, arr_modes[WiperMode]);
+    
+    if (WiperMode == 3){
+        hd44780_gotoxy(&lcd, 0, 1);
+        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
+        hd44780_puts(&lcd, "Speed: ");
+        //snprintf(speed, 7, "%s", arr_speeds[WiperSpeed]);
+        hd44780_puts(&lcd, arr_speeds[WiperSpeed]);
+    }
+    else {
+        hd44780_gotoxy(&lcd, 0, 1);
+        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
+        hd44780_puts(&lcd, "Speed: ");
+    }
+}
+
+
 void app_main(void) {
     printf("RUNNING\n");
     config();
@@ -64,6 +106,7 @@ void app_main(void) {
     //Handles Wiper Functions
     xTaskCreate(WiperHandler, "WiperHandler", 2048, NULL, 5, NULL);
 
+    xTaskCreate(lcd_test, "lcd_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
     //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
@@ -253,11 +296,11 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
 
 void WiperSpeedHandler(int WiperSpeed){
     if (WiperSpeed == 0) {
-
+       
     } else if (WiperSpeed == 0) {
-
+       
     } else {
-
+       
     }
 }
 

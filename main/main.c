@@ -30,15 +30,13 @@
 #define LEDC_CHANNEL LEDC_CHANNEL_0                 //Define LEDC channel
 #define LEDC_DUTY_RES LEDC_TIMER_13_BIT             //Set duty resolution to 13 bits
 #define LEDC_FREQUENCY (50)                         //Set the PWM signal frequency in Hertz. 
-#define LEDC_CW_LOW (550)                           //Set duty to make servo spin clockwise slow
-#define LEDC_CCW_LOW (700)                          //Set duty to make servo spin counter-clockwise slow
-#define LEDC_CW_HIGH (10)                           //Set duty to make servo spin clockwise fast
-#define LEDC_CCW_HIGH (1200)                        //Set duty to make servo spin counter-clockwise fast
-#define LEDC_STOP (600)
+#define LEDC_DUTY_MIN (200)                         //Set duty to move servo to 0 degrees
+#define LEDC_DUTY_MAX (921)                         //Set duty to move servo to 180 degrees
+#define LEDC_STOP (0)                               //Set duty to make servo stop
 #define LEDC_DELAY (770/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
 
 
-bool running = 0;                                   //Variable to track when car is running
+bool running = 1;                                   //Variable to track when car is running
 bool reset = 1;                                     //Variable to track when the system has reset
 bool error = 0;                                     //Variable for when the alarm should sound
 bool ran = 1;                                       //Variable to track if engine just started
@@ -126,14 +124,15 @@ void app_main(void) {
             //Sets wipers to the proper mode based on the potentiometer readings
             if (mode_selector < 550) {
                 WiperMode = 0;
-            } else if (mode_selector < 1100 && mode_selector >= 550) {
+            } else if (mode_selector < 1500 && mode_selector >= 550) {
                 WiperMode = 1;
-            } else if (mode_selector <1650 && mode_selector >= 1100){
+            } else if (mode_selector <2300 && mode_selector >= 1500){
                 WiperMode = 2;
             } else {
                 WiperMode = 3;
             }
-
+            printf("%d\n", WiperMode);
+            printf("%d\n", mode_selector);
             vTaskDelay(20/portTICK_PERIOD_MS);
         }
         if (error == 1) {                               //Reset the system and sound the alarm
@@ -267,24 +266,24 @@ void WiperHandler() {
             ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         } else if (WiperMode == 1) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_HIGH);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_HIGH);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         } else if (WiperMode == 2) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_LOW);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_LOW);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         } else if (WiperMode == 3) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CW_HIGH);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_CCW_HIGH);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         }

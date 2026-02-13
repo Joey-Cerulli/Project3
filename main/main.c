@@ -42,10 +42,8 @@ bool error = 0;                                     //Variable for when the alar
 bool ran = 1;                                       //Variable to track if engine just started
 int WiperMode = 0;                                  //Variable for setting the wiper mode
 int WiperSpeed = 0;                                 //Variable for setting the wipers' speed
-char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};
-char arr_speeds[3][5] = {"SHORT", "MED", "LONG"};
-char mode[16];
-char speed[16];
+char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};   //List of mode options 
+char arr_speeds[3][5] = {"SHORT", "MED", "LONG"};             //List of intermittent speed options
 
 //Initialize functions for later
 void config();
@@ -78,19 +76,15 @@ void lcd(void *pvParameters){
 
     hd44780_gotoxy(&lcd, 0, 0);
     hd44780_puts(&lcd, "Mode: ");
-    //snprintf(mode, sizeof(mode), "%s", arr_modes[WiperMode]);
     hd44780_puts(&lcd, arr_modes[WiperMode]);
     
     if (WiperMode == 3){
         hd44780_gotoxy(&lcd, 0, 1);
-        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
         hd44780_puts(&lcd, "Speed: ");
-        //snprintf(speed, 7, "%s", arr_speeds[WiperSpeed]);
         hd44780_puts(&lcd, arr_speeds[WiperSpeed]);
     }
     else {
         hd44780_gotoxy(&lcd, 0, 1);
-        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
         hd44780_puts(&lcd, "Speed: ");
     }
     vTaskDelay(20/portTICK_PERIOD_MS);

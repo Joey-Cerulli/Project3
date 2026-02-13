@@ -44,11 +44,17 @@ bool reset = 1;                                     //Variable to track when the
 bool error = 0;                                     //Variable for when the alarm should sound
 bool ran = 1;                                       //Variable to track if engine just started
 int WiperMode = 0;                                  //Variable for setting the wiper mode
+<<<<<<< HEAD
 int WiperInterval = 0;                              //Variable for setting the wipers' speed
 char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};
 char arr_speeds[3][10] = {"SHORT", "MED", "LONG"};
 char mode[16];
 char speed[16];
+=======
+int WiperSpeed = 0;                                 //Variable for setting the wipers' speed
+char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};   //List of mode options 
+char arr_speeds[3][5] = {"SHORT", "MED", "LONG"};             //List of intermittent speed options
+>>>>>>> 89b9400d71424cb2271704b2c8d33c33353eebe2
 
 //Initialize functions for later
 void config();
@@ -79,6 +85,7 @@ void lcd(void *pvParameters){
 
     ESP_ERROR_CHECK(hd44780_init(&lcd));
 
+<<<<<<< HEAD
     while(1) {
         hd44780_clear(&lcd);
         hd44780_gotoxy(&lcd, 0, 0);
@@ -95,6 +102,22 @@ void lcd(void *pvParameters){
         }
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
+=======
+    hd44780_gotoxy(&lcd, 0, 0);
+    hd44780_puts(&lcd, "Mode: ");
+    hd44780_puts(&lcd, arr_modes[WiperMode]);
+    
+    if (WiperMode == 3){
+        hd44780_gotoxy(&lcd, 0, 1);
+        hd44780_puts(&lcd, "Speed: ");
+        hd44780_puts(&lcd, arr_speeds[WiperSpeed]);
+    }
+    else {
+        hd44780_gotoxy(&lcd, 0, 1);
+        hd44780_puts(&lcd, "Speed: ");
+    }
+    vTaskDelay(20/portTICK_PERIOD_MS);
+>>>>>>> 89b9400d71424cb2271704b2c8d33c33353eebe2
 }
 
 

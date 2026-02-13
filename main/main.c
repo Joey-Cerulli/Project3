@@ -34,6 +34,9 @@
 #define LEDC_DUTY_MAX (921)                         //Set duty to move servo to 180 degrees
 #define LEDC_STOP (0)                               //Set duty to make servo stop
 #define LEDC_DELAY (770/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
+#define LEDC_SHORT (1770/portTICK_PERIOD_MS)        //Define the delay for a short interval
+#define LEDC_MEDIUM (3770/portTICK_PERIOD_MS)       //Define the delay for a medium interval
+#define LEDC_LONG (5770/portTICK_PERIOD_MS)         //Define the delay for a long interval
 
 
 bool running = 1;                                   //Variable to track when car is running
@@ -41,9 +44,9 @@ bool reset = 1;                                     //Variable to track when the
 bool error = 0;                                     //Variable for when the alarm should sound
 bool ran = 1;                                       //Variable to track if engine just started
 int WiperMode = 0;                                  //Variable for setting the wiper mode
-int WiperSpeed = 0;                                 //Variable for setting the wipers' speed
+int WiperInterval = 0;                              //Variable for setting the wipers' speed
 char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};
-char arr_speeds[3][5] = {"SHORT", "MED", "LONG"};
+char arr_speeds[3][10] = {"SHORT", "MED", "LONG"};
 char mode[16];
 char speed[16];
 
@@ -76,24 +79,22 @@ void lcd(void *pvParameters){
 
     ESP_ERROR_CHECK(hd44780_init(&lcd));
 
-    hd44780_gotoxy(&lcd, 0, 0);
-    hd44780_puts(&lcd, "Mode: ");
-    //snprintf(mode, sizeof(mode), "%s", arr_modes[WiperMode]);
-    hd44780_puts(&lcd, arr_modes[WiperMode]);
-    
-    if (WiperMode == 3){
-        hd44780_gotoxy(&lcd, 0, 1);
-        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
-        hd44780_puts(&lcd, "Speed: ");
-        //snprintf(speed, 7, "%s", arr_speeds[WiperSpeed]);
-        hd44780_puts(&lcd, arr_speeds[WiperSpeed]);
+    while(1) {
+        hd44780_clear(&lcd);
+        hd44780_gotoxy(&lcd, 0, 0);
+        hd44780_puts(&lcd, "Mode: ");
+        hd44780_puts(&lcd, arr_modes[WiperMode]);
+        if (WiperMode == 3){
+            hd44780_gotoxy(&lcd, 0, 1);
+            hd44780_puts(&lcd, "Speed: ");
+            hd44780_puts(&lcd, arr_speeds[WiperInterval]);
+        }
+        else {
+            hd44780_gotoxy(&lcd, 0, 1);
+            hd44780_puts(&lcd, "Speed: ");
+        }
+        vTaskDelay(20/portTICK_PERIOD_MS);
     }
-    else {
-        hd44780_gotoxy(&lcd, 0, 1);
-        //snprintf(speedPrint, sizeof(speedPrint), "%s", "Speed: ");
-        hd44780_puts(&lcd, "Speed: ");
-    }
-    vTaskDelay(20/portTICK_PERIOD_MS);
 }
 
 
@@ -147,10 +148,10 @@ void app_main(void) {
         while(running == 1) {
             run();                                      //Run function for starting the car
 
-            int mode_selector_adc_bits;                 //Variable for potentiometer input adc bits
-            int mode_selector;                          //Variable for potentiometer adc bits in mV
-            int speed_selector_adc_bits;                //Variable for light sensor input adc bits
-            int speed_selector;                         //Variable for light sensor adc bits in mV
+            int mode_selector_adc_bits;                 //Variable for wiper mode potentiometer input in bits
+            int mode_selector;                          //Variable for wiper mode potentiometer input in mV
+            int int_selector_adc_bits;                  //Variable for wiper interval selector potentiometer input in bits
+            int int_selector;                           //Variable for wiper interval selector potentiometer input in mV
 
             adc_oneshot_read                            //Get potentiometer input bits and make them mV
             (adc1_handle, ModeSelector, &mode_selector_adc_bits);
@@ -159,22 +160,31 @@ void app_main(void) {
             (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector);
 
             adc_oneshot_read                            //Get light sensor input bits and make them mV
-            (adc1_handle, SpeedSelector, &speed_selector_adc_bits);
+            (adc1_handle, SpeedSelector, &int_selector_adc_bits);
         
             adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, speed_selector_adc_bits, &speed_selector);
+            (adc1_cali_chan_handle, int_selector_adc_bits, &int_selector);
 
 
-            //Sets wipers to the proper mode based on the potentiometer readings
+            //Sets wipers to the proper mode and interval based on the potentiometer readings
             if (mode_selector < 550) {
                 WiperMode = 0;
             } else if (mode_selector < 1500 && mode_selector >= 550) {
                 WiperMode = 1;
-            } else if (mode_selector <2300 && mode_selector >= 1500){
+            } else if (mode_selector <2300 && mode_selector >= 1500) {
                 WiperMode = 2;
-            } else {
+            } else  if (mode_selector >= 2300) {
                 WiperMode = 3;
             }
+
+            if (int_selector < 1050) {
+                WiperInterval = 0;
+            } else if (int_selector < 2100 && int_selector >= 1050) {
+                WiperInterval = 1;
+            } else if (int_selector >= 2100) {
+                WiperInterval = 2;
+            }
+
             printf("%d\n", WiperMode);
             printf("%d\n", mode_selector);
             vTaskDelay(20/portTICK_PERIOD_MS);
@@ -295,13 +305,28 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
     }
 }
 
-void WiperSpeedHandler(int WiperSpeed){
-    if (WiperSpeed == 0) {
-       
-    } else if (WiperSpeed == 0) {
-       
-    } else {
-       
+void WiperIntervalHandler(){
+    if (WiperInterval == 0) {
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_SHORT);
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_SHORT);
+    } else if (WiperInterval == 1) {
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_MEDIUM);
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_MEDIUM);      
+    } else if (WiperInterval == 2){
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_LONG);
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        vTaskDelay(LEDC_LONG); 
     }
 }
 
@@ -325,12 +350,7 @@ void WiperHandler() {
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             vTaskDelay(LEDC_DELAY);
         } else if (WiperMode == 3) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
+            WiperIntervalHandler();
         }
         vTaskDelay(20/portTICK_PERIOD_MS);
     }

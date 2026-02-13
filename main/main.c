@@ -13,7 +13,7 @@
 #define dbelt GPIO_NUM_6                            //Driver seatbelt button pin
 #define pseat GPIO_NUM_5                            //Passenger seat button pin
 #define pbelt GPIO_NUM_7                            //Passenger seatbelt button pin
-#define transmission GPIO_NUM_10                    //Transmission button pin
+#define transmission GPIO_NUM_3                     //Transmission button pin
 #define gLED GPIO_NUM_13                            //Green LED pin
 #define rLED GPIO_NUM_14                            //Red LED pin
 #define alarm GPIO_NUM_12                           //Alarm pin
@@ -34,9 +34,6 @@
 #define LEDC_DUTY_MAX (921)                         //Set duty to move servo to 180 degrees
 #define LEDC_STOP (0)                               //Set duty to make servo stop
 #define LEDC_DELAY (300/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
-#define LEDC_SHORT (1000/portTICK_PERIOD_MS)        //Define the delay for a short interval
-#define LEDC_MEDIUM (3000/portTICK_PERIOD_MS)       //Define the delay for a medium interval
-#define LEDC_LONG (5000/portTICK_PERIOD_MS)         //Define the delay for a long interval
 
 
 bool running = 1;                                             //Variable to track when car is running
@@ -45,6 +42,9 @@ bool error = 0;                                               //Variable for whe
 bool ran = 1;                                                 //Variable to track if engine just started
 int WiperMode = 0;                                            //Variable for setting the wiper mode
 int WiperInterval = 0;                                        //Variable for setting the wipers' speed
+int counterLOW = 0;                                           //Variable for delaying the LOW interval by 1 second
+int counterMED = 0;                                           //Variable for delaying the LOW interval by 3 seconds 
+int counterHIGH = 0;                                          //Variable for delaying the LOW interval by 5 seconds
 char arr_modes[4][10] = {"OFF", "HIGH", "LOW", "INTERVAL"};   //List of mode options 
 char arr_speeds[3][10] = {"SHORT", "MED", "LONG"};            //List of intermittent speed options
 
@@ -307,68 +307,82 @@ void IRAM_ATTR gpio_isr_handler(void* arg) {
 
 void WiperIntervalHandler(){
     if (WiperInterval == 0) {
-        //Move the wipers back and forth
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        //Stop the wipers for 1 second
+        //Move the wipers back and forth after 1 second
+        if (counterLOW == 50) {
+            counterLOW = 0;
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        }
+        counterLOW++;
+        //Stop the wipers
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_SHORT);
     } else if (WiperInterval == 1) {
-        //Move the wipers back and forth
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        //Stop the wipers for 3 seconds
+        //Move the wipers back and forth after 1 second
+        if (counterMED == 50) {
+            counterMED = 0;
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        }
+        counterMED++;
+        //Stop the wipers
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_MEDIUM);    
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);   
     } else if (WiperInterval == 2){
-        //Move the wipers back and forth
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_DELAY);
-        //Stop the wipers for 5 seconds
+        //Move the wipers back and forth after 1 second
+        if (counterHIGH == 50) {
+            counterHIGH = 0;
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            vTaskDelay(LEDC_DELAY);
+        }
+        counterHIGH++;
+        //Stop the wipers
         ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        vTaskDelay(LEDC_LONG);
     }
 }
 
 void WiperHandler() {
-    while(running) {
-        if (WiperMode == 0) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-        } else if (WiperMode == 1) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
-        } else if (WiperMode == 2) {
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
-            ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
-            ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-            vTaskDelay(LEDC_DELAY);
-        } else if (WiperMode == 3) {
-            printf("I should be running the interval handler function!\n");
-            WiperIntervalHandler();
+    while(1) {
+        if (running) {
+            if (WiperMode == 0) {
+                ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
+                ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+            } else if (WiperMode == 1) {
+                ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+                ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+                vTaskDelay(LEDC_DELAY);
+                ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+                ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+                vTaskDelay(LEDC_DELAY);
+            } else if (WiperMode == 2) {
+                ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
+                ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+                vTaskDelay(LEDC_DELAY);
+                ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MIN);
+                ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+                vTaskDelay(LEDC_DELAY);
+            } else if (WiperMode == 3) {
+                printf("I should be running the interval handler function!\n");
+                WiperIntervalHandler();
+            }
+            printf("\nMode Handler Runned (thumbs up emoji)\n");
+            vTaskDelay(20/portTICK_PERIOD_MS);
         }
-        printf("\nMode Handler Runned (thumbs up emoji)\n");
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
 }

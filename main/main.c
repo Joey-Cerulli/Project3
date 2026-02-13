@@ -165,9 +165,9 @@ void app_main(void) {
 
 
             //Sets wipers to the proper mode and interval based on the potentiometer readings
-            if (mode_selector < 550) {
+            if (mode_selector < 600) {
                 WiperMode = 0;
-            } else if (mode_selector < 1500 && mode_selector >= 550) {
+            } else if (mode_selector < 1500 && mode_selector >= 600) {
                 WiperMode = 1;
             } else if (mode_selector <2300 && mode_selector >= 1500) {
                 WiperMode = 2;
@@ -323,7 +323,7 @@ void WiperIntervalHandler(){
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
     } else if (WiperInterval == 1) {
         //Move the wipers back and forth after 1 second
-        if (counterMED == 50) {
+        if (counterMED == 150) {
             counterMED = 0;
             ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -338,7 +338,7 @@ void WiperIntervalHandler(){
         ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);   
     } else if (WiperInterval == 2){
         //Move the wipers back and forth after 1 second
-        if (counterHIGH == 50) {
+        if (counterHIGH == 250) {
             counterHIGH = 0;
             ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
             ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
@@ -368,6 +368,9 @@ void WiperHandler() {
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);
             } else if (WiperMode == 2) {
+                counterLOW = 0;
+                counterMED = 0;
+                counterHIGH = 0;
                 ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);
@@ -375,14 +378,9 @@ void WiperHandler() {
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);
             } else if (WiperMode == 3) {
-                printf("I should be running the interval handler function!\n");
                 WiperIntervalHandler();
             }
-            printf("\nMode Handler Runned (thumbs up emoji)\n");
-            vTaskDelay(20/portTICK_PERIOD_MS);
         }
-        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
-        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
 }

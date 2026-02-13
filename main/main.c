@@ -358,9 +358,11 @@ void WiperHandler() {
     while(1) {
         if (running) {
             if (WiperMode == 0) {
+                //Stop the wipers
                 ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_STOP);
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
             } else if (WiperMode == 1) {
+                //Make the wipers move at 25rpm
                 ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);
@@ -368,9 +370,11 @@ void WiperHandler() {
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);
             } else if (WiperMode == 2) {
+                //Reset counters when wipers are not in intermittent mode
                 counterLOW = 0;
                 counterMED = 0;
                 counterHIGH = 0;
+                //Make the wipers move at 10rpm
                 ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY_MAX);
                 ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
                 vTaskDelay(LEDC_DELAY);

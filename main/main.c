@@ -33,7 +33,6 @@
 #define LEDC_DUTY_MIN (570)                         //Define duty to move servo to 0 degrees
 #define LEDC_DUTY_MAX (230)                         //Define duty to move servo to 90 degrees
 #define LEDC_STOP (0)                               //Define duty to stop servo
-#define LEDC_DELAY (300/portTICK_PERIOD_MS)         //Define the delay needed for one 180 degree rotation
 
 
 bool running = 1;                                             //Variable to track when car is running
@@ -193,11 +192,6 @@ void app_main(void) {
                 //LONG interval
                 WiperInterval = 2;
             }
-
-            printf("%d --- ", WiperInterval);
-            printf("%d  ///  ", int_selector);
-            printf("%d --- ", WiperMode);
-            printf("%d\n", mode_selector);
             vTaskDelay(20/portTICK_PERIOD_MS);
         }
         if (error == 1) {                               //Reset the system and sound the alarm

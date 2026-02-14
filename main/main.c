@@ -35,7 +35,7 @@
 #define LEDC_STOP (0)                               //Define duty to stop servo
 
 
-bool running = 1;                                             //Variable to track when car is running
+bool running = 0;                                             //Variable to track when car is running
 bool reset = 1;                                               //Variable to track when the system has reset
 bool error = 0;                                               //Variable for when the alarm should sound
 bool ran = 1;                                                 //Variable to track if engine just started
@@ -55,6 +55,7 @@ void run();
 void gpio_isr_handler();
 void WiperHandler();
 void ledc_init();
+void IgnitionHandler();
 bool ready();
 
 void lcd(void *pvParameters){
@@ -101,9 +102,11 @@ void app_main(void) {
     ledc_init();
 
     //Handles Wiper Functions
-    xTaskCreate(WiperHandler, "WiperHandler", 2048, NULL, 5, NULL);
+    xTaskCreatePinnedToCore(WiperHandler, "WiperHandler", 2048, NULL, 5, NULL, 0);
     //Handles LCD functions
-    xTaskCreate(lcd, "LCDmessages", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+    xTaskCreatePinnedToCore(lcd, "LCDmessages", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL, 0);
+    //Handles ignition button
+    xTaskCreatePinnedToCore(IgnitionHandler, "IgnitionHandler", 2048, NULL, 5, NULL, 1);
     //Configure ADC pins
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
@@ -234,10 +237,6 @@ void config(){
     gpio_reset_pin(transmission);
     gpio_set_direction(transmission, GPIO_MODE_INPUT);
     gpio_pulldown_en(transmission);
-    gpio_set_intr_type(transmission, GPIO_INTR_POSEDGE);
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(transmission, gpio_isr_handler, NULL);
-    gpio_intr_enable(transmission);
 
     //Configure gLED pin
     gpio_reset_pin(gLED);
@@ -298,15 +297,29 @@ void run() {
 }
 
 //Interupt function for when transmission is pressed
-void IRAM_ATTR gpio_isr_handler(void* arg) {
-    if (ready() == 1 && running == 0) {             //Start engine if all conditions met
-        running = 1;    
-    } else if (running == 1) {                      //Stop engine if it is running
-        reset = 1;
-        ran = 1;
-        running = 0;
-    } else {                                        //Sound the alarm and print error messages if conditions not met
-        error = 1;
+void IgnitionHandler() {
+    //Initialize variables for tracking button presses
+    bool Bstate = 0;
+    bool Pstate = 0;
+
+    while(1) {
+        Bstate = gpio_get_level(transmission);
+        if (Bstate && !Pstate) { 
+            Pstate = 1;
+            if (ready() == 1 && running == 0) {             //Start engine if all conditions met
+                running = 1;    
+            } else if (running == 1) {                      //Stop engine if it is running
+                reset = 1;
+                ran = 1;
+                running = 0;
+            } else {                                        //Sound the alarm and print error messages if conditions not met
+                error = 1;
+            }
+        }
+        if (!Bstate && Pstate) {
+            Pstate = 0;
+        }
+    vTaskDelay(20/portTICK_PERIOD_MS);
     }
 }
 

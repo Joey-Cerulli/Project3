@@ -81,15 +81,19 @@ void lcd(void *pvParameters){
         hd44780_clear(&lcd);
         hd44780_gotoxy(&lcd, 0, 0);
         hd44780_puts(&lcd, "Mode: ");
-        hd44780_puts(&lcd, arr_modes[WiperMode]);
-        if (WiperMode == 3){
-            hd44780_gotoxy(&lcd, 0, 1);
-            hd44780_puts(&lcd, "Interval: ");
-            hd44780_puts(&lcd, arr_speeds[WiperInterval]);
-        }
-        else {
-            hd44780_gotoxy(&lcd, 0, 1);
-            hd44780_puts(&lcd, "");
+        if (running) {
+            hd44780_puts(&lcd, arr_modes[WiperMode]);
+            if (WiperMode == 3){
+                hd44780_gotoxy(&lcd, 0, 1);
+                hd44780_puts(&lcd, "Interval: ");
+                hd44780_puts(&lcd, arr_speeds[WiperInterval]);
+            }
+            else {
+                hd44780_gotoxy(&lcd, 0, 1);
+                hd44780_puts(&lcd, "");
+            }
+        } else {
+            hd44780_puts(&lcd, arr_modes[0]);
         }
         vTaskDelay(20/portTICK_PERIOD_MS);
     }
@@ -97,7 +101,6 @@ void lcd(void *pvParameters){
 
 
 void app_main(void) {
-    printf("RUNNING\n");
     config();
     ledc_init();
 
@@ -140,62 +143,60 @@ void app_main(void) {
             gpio_set_level(rLED, 0);
             welcome();
         }
-        if (ready() == 1) {                             //Turn on green LED if all conditions met
+        if (ready() && !running) {                      //Turn on green LED if all conditions met
             gpio_set_level(gLED, 1);
         } else {                                        //Turn off green LED if conditions not met
             gpio_set_level(gLED, 0);
         }
-        while(running) {
+        if (running) {
             run();                                      //Run function for starting the car
+        }
+        int mode_selector_adc_bits;                     //Variable for wiper mode potentiometer input in bits
+        int mode_selector;                              //Variable for wiper mode potentiometer input in mV
+        int int_selector_adc_bits;                      //Variable for wiper interval selector potentiometer input in bits
+        int int_selector;                               //Variable for wiper interval selector potentiometer input in mV
 
-            int mode_selector_adc_bits;                 //Variable for wiper mode potentiometer input in bits
-            int mode_selector;                          //Variable for wiper mode potentiometer input in mV
-            int int_selector_adc_bits;                  //Variable for wiper interval selector potentiometer input in bits
-            int int_selector;                           //Variable for wiper interval selector potentiometer input in mV
+        //Read input bits for mode selector
+        adc_oneshot_read
+        (adc1_handle, ModeSelector, &mode_selector_adc_bits);
+    
+        //Convert mode selection bits to mV
+        adc_cali_raw_to_voltage
+        (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector);
 
-            //Read input bits for mode selector
-            adc_oneshot_read
-            (adc1_handle, ModeSelector, &mode_selector_adc_bits);
-        
-            //Convert mode selection bits to mV
-            adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, mode_selector_adc_bits, &mode_selector);
-
-            //Read input bits for interval selector
-            adc_oneshot_read
-            (adc1_handle, IntervalSelector, &int_selector_adc_bits);
-        
-            //Convert interval selection bits to mV
-            adc_cali_raw_to_voltage
-            (adc1_cali_chan_handle, int_selector_adc_bits, &int_selector);
+        //Read input bits for interval selector
+        adc_oneshot_read
+        (adc1_handle, IntervalSelector, &int_selector_adc_bits);
+    
+        //Convert interval selection bits to mV
+        adc_cali_raw_to_voltage
+        (adc1_cali_chan_handle, int_selector_adc_bits, &int_selector);
 
 
-            //Sets wipers to the proper mode and interval based on the potentiometer readings
-            if (mode_selector < 600) {
-                //Wipers off
-                WiperMode = 0;
-            } else if (mode_selector < 1450 && mode_selector >= 600) {
-                //Wipers on HIGH
-                WiperMode = 1;
-            } else if (mode_selector <2300 && mode_selector >= 1450) {
-                //Wipers on LOW
-                WiperMode = 2;
-            } else  if (mode_selector >= 2300) {
-                //Wipers on INTERMITTENT
-                WiperMode = 3;
-            }
+        //Sets wipers to the proper mode and interval based on the potentiometer readings
+        if (mode_selector < 600) {
+            //Wipers off
+            WiperMode = 0;
+        } else if (mode_selector < 1450 && mode_selector >= 600) {
+            //Wipers on HIGH
+            WiperMode = 1;
+        } else if (mode_selector <2300 && mode_selector >= 1450) {
+            //Wipers on LOW
+            WiperMode = 2;
+        } else  if (mode_selector >= 2300) {
+            //Wipers on INTERMITTENT
+            WiperMode = 3;
+        }
 
-            if (int_selector < 1050) {
-                //SHORT interval
-                WiperInterval = 0;
-            } else if (int_selector < 2100 && int_selector >= 1050) {
-                //MED interval
-                WiperInterval = 1;
-            } else if (int_selector >= 2100) {
-                //LONG interval
-                WiperInterval = 2;
-            }
-            vTaskDelay(20/portTICK_PERIOD_MS);
+        if (int_selector < 1050) {
+            //SHORT interval
+            WiperInterval = 0;
+        } else if (int_selector < 2100 && int_selector >= 1050) {
+            //MED interval
+            WiperInterval = 1;
+        } else if (int_selector >= 2100) {
+            //LONG interval
+            WiperInterval = 2;
         }
         if (error == 1) {                               //Reset the system and sound the alarm
             print_status();
@@ -212,8 +213,7 @@ void app_main(void) {
 
 //Function for configuring all GPIO pins
 void config(){
-//Configure dseat pin
-    printf("CONFIGGING\n");
+    //Configure dseat pin
     gpio_reset_pin(dseat);
     gpio_set_direction(dseat, GPIO_MODE_INPUT);
     gpio_pulldown_en(dseat);
